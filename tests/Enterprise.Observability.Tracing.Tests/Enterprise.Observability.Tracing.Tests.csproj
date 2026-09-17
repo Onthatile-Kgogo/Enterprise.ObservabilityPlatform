@@ -15,6 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Enterprise.Observability.Core\Enterprise.Observability.Core.csproj" />
+    <ProjectReference Include="..\..\src\Enterprise.Observability.Tracing\Enterprise.Observability.Tracing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 
