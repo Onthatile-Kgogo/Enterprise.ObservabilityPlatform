@@ -1,5 +1,7 @@
 <Solution>
   <Folder Name="/docs/">
+    <File Path="docs/ARCHITECTURE.md" />
+    <File Path="docs/ENGINEERING.md" />
     <File Path="docs/PROJECT_GUIDE.md" />
   </Folder>
   <Folder Name="/Solution Items/">
