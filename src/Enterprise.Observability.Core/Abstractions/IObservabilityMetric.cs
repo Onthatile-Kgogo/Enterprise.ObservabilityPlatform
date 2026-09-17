@@ -2,7 +2,7 @@
 
 namespace Enterprise.Observability.Core.Abstractions
 {
-    internal interface IObservabilityMetric
+    public interface IObservabilityMetric
     {
         void Record(MetricEntry metric);
     }
