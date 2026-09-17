@@ -1,4 +1,5 @@
-﻿using Enterprise.Observability.Core.Models;
+﻿using Enterprise.Observability.Core.Enums;
+using Enterprise.Observability.Core.Models;
 
 namespace Enterprise.Observability.Core.Tests.Models
 {
@@ -28,6 +29,7 @@ namespace Enterprise.Observability.Core.Tests.Models
             {
                 Timestamp = timestamp,
                 Name = "orders.created",
+                Type = ObservabilityMetricType.Counter,
                 Value = 10,
                 Context = context,
                 Tags = tags
@@ -36,6 +38,7 @@ namespace Enterprise.Observability.Core.Tests.Models
             // Assert
             Assert.Equal(timestamp, metric.Timestamp);
             Assert.Equal("orders.created", metric.Name);
+            Assert.Equal(ObservabilityMetricType.Counter, metric.Type);
             Assert.Equal(10, metric.Value);
             Assert.Equal(context, metric.Context);
             Assert.Equal(tags, metric.Tags);
@@ -49,6 +52,7 @@ namespace Enterprise.Observability.Core.Tests.Models
             {
                 Timestamp = DateTimeOffset.UtcNow,
                 Name = "orders.created",
+                Type = ObservabilityMetricType.Counter,
                 Value = 1
             };
 
