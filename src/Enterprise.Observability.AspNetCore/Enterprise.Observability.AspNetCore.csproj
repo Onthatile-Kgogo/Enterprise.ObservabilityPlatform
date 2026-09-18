@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.13" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.12" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Enterprise.Observability.Core\Enterprise.Observability.Core.csproj" />
+    <ProjectReference Include="..\Enterprise.Observability.Metrics\Enterprise.Observability.Metrics.csproj" />
+    <ProjectReference Include="..\Enterprise.Observability.Tracing\Enterprise.Observability.Tracing.csproj" />
+  </ItemGroup>
+</Project>
