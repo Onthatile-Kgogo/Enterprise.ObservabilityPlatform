@@ -201,4 +201,37 @@ public sealed class ObservabilityLoggerTests
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
     }
+
+    [Fact]
+    public void Log_Should_Include_Timestamp()
+    {
+        // Arrange
+        var timestamp = new DateTimeOffset(
+            2026,
+            9,
+            18,
+            10,
+            30,
+            0,
+            TimeSpan.Zero);
+
+        var entry = new LogEntry
+        {
+            Timestamp = timestamp,
+            Message = "Order created"
+        };
+
+        // Act
+        _logger.Log(ObservabilityLogLevel.Information, entry);
+
+        // Assert
+        _loggerMock.Verify(
+            logger => logger.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) => Equals(((IReadOnlyDictionary<string, object?>)state)["Timestamp"], timestamp)),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
 }

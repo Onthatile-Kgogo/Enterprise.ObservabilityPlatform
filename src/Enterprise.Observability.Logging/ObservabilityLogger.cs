@@ -16,7 +16,6 @@ namespace Enterprise.Observability.Logging
         public void Log(ObservabilityLogLevel level, LogEntry entry)
         {
             ArgumentNullException.ThrowIfNull(entry);
-
             ArgumentNullException.ThrowIfNull(entry);
 
             var logLevel = MapLogLevel(level);
@@ -34,6 +33,7 @@ namespace Enterprise.Observability.Logging
         {
             var properties = new Dictionary<string, object?>
             {
+                ["Timestamp"] = entry.Timestamp,
                 ["Message"] = entry.Message,
                 ["Source"] = entry.Source,
                 ["CorrelationId"] = entry.Context?.CorrelationId,
