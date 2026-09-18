@@ -1,5 +1,0 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  <ItemGroup>
-    <ProjectReference Include="..\Enterprise.Observability.Core\Enterprise.Observability.Core.csproj" />
-  </ItemGroup>
-</Project>
