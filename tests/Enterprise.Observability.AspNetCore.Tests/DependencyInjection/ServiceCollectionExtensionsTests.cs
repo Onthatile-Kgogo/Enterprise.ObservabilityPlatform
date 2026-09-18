@@ -18,7 +18,9 @@ public class ServiceCollectionExtensionsTests
 
         // Assert
         var tracer = provider.GetService<IObservabilityTracer>();
+        var contextAccessor = provider.GetService<IObservabilityContext>();
 
         Assert.NotNull(tracer);
+        Assert.NotNull(contextAccessor);
     }
 }
