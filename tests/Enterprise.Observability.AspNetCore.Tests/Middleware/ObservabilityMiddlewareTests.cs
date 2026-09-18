@@ -1,5 +1,6 @@
 ﻿using Enterprise.Observability.AspNetCore.Middleware;
 using Enterprise.Observability.Core.Abstractions;
+using Enterprise.Observability.Core.Enums;
 using Enterprise.Observability.Core.Models;
 using Microsoft.AspNetCore.Http;
 
@@ -12,13 +13,14 @@ public class ObservabilityMiddlewareTests
     {
         // Arrange
         var tracer = new TestObservabilityTracer();
+        var metric = new TestObservabilityMetric();
 
         var context = new DefaultHttpContext();
         context.Request.Method = "GET";
         context.Request.Path = "/health";
         context.Response.StatusCode = StatusCodes.Status200OK;
 
-        var middleware = new ObservabilityMiddleware(_ => Task.CompletedTask, tracer);
+        var middleware = new ObservabilityMiddleware(_ => Task.CompletedTask, tracer, metric);
 
         // Act
         await middleware.InvokeAsync(context);
@@ -42,14 +44,13 @@ public class ObservabilityMiddlewareTests
     {
         // Arrange
         var tracer = new TestObservabilityTracer();
+        var metric = new TestObservabilityMetric();
 
         var context = new DefaultHttpContext();
         context.Request.Method = "GET";
         context.Request.Path = "/failure";
 
-        var middleware = new ObservabilityMiddleware(
-            _ => throw new InvalidOperationException("Test exception"),
-            tracer);
+        var middleware = new ObservabilityMiddleware(_ => throw new InvalidOperationException("Test exception"), tracer, metric);
 
         // Act
         await Assert.ThrowsAsync<InvalidOperationException>(() => middleware.InvokeAsync(context));
@@ -64,6 +65,111 @@ public class ObservabilityMiddlewareTests
         Assert.Equal("/failure", trace.Attributes["http.path"]);
     }
 
+    [Fact]
+    public async Task InvokeAsync_ShouldRecordRequestMetric()
+    {
+        // Arrange
+        var tracer = new TestObservabilityTracer();
+        var metric = new TestObservabilityMetric();
+
+        var context = new DefaultHttpContext();
+        context.Request.Method = "GET";
+        context.Request.Path = "/health";
+        context.Response.StatusCode = StatusCodes.Status200OK;
+
+        var middleware = new ObservabilityMiddleware(_ => Task.CompletedTask, tracer, metric);
+
+        // Act
+        await middleware.InvokeAsync(context);
+
+        // Assert
+        var requestMetric = Assert.Single(metric.Metrics, x => x.Name == "http.server.requests");
+
+        Assert.Equal(ObservabilityMetricType.Counter, requestMetric.Type);
+        Assert.Equal(1, requestMetric.Value);
+        Assert.Equal("GET", requestMetric.Tags["http.method"]);
+        Assert.Equal("200", requestMetric.Tags["http.status_code"]);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_ShouldRecordRequestDurationMetric()
+    {
+        // Arrange
+        var tracer = new TestObservabilityTracer();
+        var metric = new TestObservabilityMetric();
+
+        var context = new DefaultHttpContext();
+        context.Request.Method = "GET";
+        context.Request.Path = "/health";
+        context.Response.StatusCode = StatusCodes.Status200OK;
+
+        var middleware = new ObservabilityMiddleware(async _ => await Task.Delay(10), tracer, metric);
+
+        // Act
+        await middleware.InvokeAsync(context);
+
+        // Assert
+        var durationMetric = Assert.Single(metric.Metrics, x => x.Name == "http.server.request.duration");
+
+        Assert.Equal(ObservabilityMetricType.Histogram, durationMetric.Type);
+        Assert.True(durationMetric.Value >= 0);
+        Assert.Equal("GET", durationMetric.Tags["http.method"]);
+        Assert.Equal("200", durationMetric.Tags["http.status_code"]);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_ShouldRecordActiveRequestGauge()
+    {
+        // Arrange
+        var tracer = new TestObservabilityTracer();
+        var metric = new TestObservabilityMetric();
+
+        var context = new DefaultHttpContext();
+        context.Request.Method = "GET";
+        context.Request.Path = "/health";
+
+        var middleware = new ObservabilityMiddleware(_ => Task.CompletedTask, tracer, metric);
+
+        // Act
+        await middleware.InvokeAsync(context);
+
+        // Assert
+        var activeMetrics = metric.Metrics
+            .Where(x => x.Name == "http.server.active_requests")
+            .ToList();
+
+        Assert.Equal(2, activeMetrics.Count);
+        Assert.Equal(1, activeMetrics[0].Value);
+        Assert.Equal(0, activeMetrics[1].Value);
+        Assert.All(activeMetrics, metricEntry => Assert.Equal("GET", metricEntry.Tags["http.method"]));
+    }
+
+    [Fact]
+    public async Task InvokeAsync_ShouldRecordErrorMetric_WhenNextMiddlewareThrows()
+    {
+        // Arrange
+        var tracer = new TestObservabilityTracer();
+        var metric = new TestObservabilityMetric();
+
+        var context = new DefaultHttpContext();
+        context.Request.Method = "GET";
+        context.Request.Path = "/failure";
+
+        var middleware = new ObservabilityMiddleware(_ => throw new InvalidOperationException("Test exception"), tracer, metric);
+
+        // Act
+        await Assert.ThrowsAsync<InvalidOperationException>(() => middleware.InvokeAsync(context));
+
+        // Assert
+        var errorMetric = Assert.Single(metric.Metrics, x => x.Name == "http.server.errors");
+
+        Assert.Equal(ObservabilityMetricType.Counter, errorMetric.Type);
+
+        Assert.Equal(1, errorMetric.Value);
+        Assert.Equal("GET", errorMetric.Tags["http.method"]);
+    }
+
+    #region Test Helpers
     private sealed class TestObservabilityTracer : IObservabilityTracer
     {
         public List<TraceEntry> Traces { get; } = [];
@@ -72,4 +178,14 @@ public class ObservabilityMiddlewareTests
             Traces.Add(trace);
         }
     }
+    private sealed class TestObservabilityMetric : IObservabilityMetric
+    {
+        public List<MetricEntry> Metrics { get; } = [];
+
+        public void Record(MetricEntry metric)
+        {
+            Metrics.Add(metric);
+        }
+    }
+    #endregion
 }
