@@ -3,6 +3,7 @@ using Enterprise.Observability.Core.Abstractions;
 using Enterprise.Observability.Core.Enums;
 using Enterprise.Observability.Core.Models;
 using Microsoft.AspNetCore.Http;
+using System.Diagnostics;
 
 namespace Enterprise.Observability.AspNetCore.Tests;
 
@@ -167,6 +168,114 @@ public class ObservabilityMiddlewareTests
 
         Assert.Equal(1, errorMetric.Value);
         Assert.Equal("GET", errorMetric.Tags["http.method"]);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_ShouldGenerateCorrelationId_WhenRequestDoesNotContainOne()
+    {
+        // Arrange
+        var tracer = new TestObservabilityTracer();
+        var metric = new TestObservabilityMetric();
+
+        var context = new DefaultHttpContext();
+        context.Request.Method = "GET";
+        context.Request.Path = "/health";
+
+        var middleware = new ObservabilityMiddleware(
+            _ => Task.CompletedTask,
+            tracer,
+            metric);
+
+        // Act
+        await middleware.InvokeAsync(context);
+
+        // Assert
+        var correlationId = context.Response.Headers["X-Correlation-ID"].ToString();
+
+        Assert.False(string.IsNullOrWhiteSpace(correlationId));
+
+        var trace = Assert.Single(tracer.Traces);
+
+        Assert.Equal(correlationId, trace.Context?.CorrelationId);
+
+        var requestMetric = Assert.Single(
+            metric.Metrics,
+            x => x.Name == "http.server.requests");
+
+        Assert.Equal(correlationId, requestMetric.Context?.CorrelationId);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_ShouldPreserveIncomingCorrelationId()
+    {
+        // Arrange
+        var tracer = new TestObservabilityTracer();
+        var metric = new TestObservabilityMetric();
+
+        var context = new DefaultHttpContext();
+        context.Request.Method = "GET";
+        context.Request.Path = "/health";
+        context.Request.Headers["X-Correlation-ID"] = "correlation-123";
+
+        var middleware = new ObservabilityMiddleware(
+            _ => Task.CompletedTask,
+            tracer,
+            metric);
+
+        // Act
+        await middleware.InvokeAsync(context);
+
+        // Assert
+        Assert.Equal(
+            "correlation-123",
+            context.Response.Headers["X-Correlation-ID"].ToString());
+
+        var trace = Assert.Single(tracer.Traces);
+
+        Assert.Equal(
+            "correlation-123",
+            trace.Context?.CorrelationId);
+
+        Assert.All(
+            metric.Metrics,
+            metricEntry => Assert.Equal(
+                "correlation-123",
+                metricEntry.Context?.CorrelationId));
+    }
+
+    [Fact]
+    public async Task InvokeAsync_ShouldPreserveExistingActivityCorrelationId()
+    {
+        // Arrange
+        var tracer = new TestObservabilityTracer();
+        var metric = new TestObservabilityMetric();
+
+        using var activity = new Activity("existing-request");
+        activity.Start();
+        activity.AddBaggage("correlation.id", "activity-correlation-123");
+
+        var context = new DefaultHttpContext();
+        context.Request.Method = "GET";
+        context.Request.Path = "/health";
+
+        var middleware = new ObservabilityMiddleware(
+            _ => Task.CompletedTask,
+            tracer,
+            metric);
+
+        // Act
+        await middleware.InvokeAsync(context);
+
+        // Assert
+        Assert.Equal(
+            "activity-correlation-123",
+            context.Response.Headers["X-Correlation-ID"].ToString());
+
+        var trace = Assert.Single(tracer.Traces);
+
+        Assert.Equal(
+            "activity-correlation-123",
+            trace.Context?.CorrelationId);
     }
 
     #region Test Helpers
