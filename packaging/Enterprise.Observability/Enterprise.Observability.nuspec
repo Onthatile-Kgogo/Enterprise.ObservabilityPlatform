@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
 	<metadata>
 		<id>Enterprise.Observability</id>
@@ -31,7 +31,7 @@
 		<projectUrl>https://github.com/Onthatile-Kgogo/Enterprise.ObservabilityPlatform</projectUrl>
 
 		<readme>README.md</readme>
-		
+
 		<dependencies>
 			<group targetFramework="net10.0">
 				<dependency id="Microsoft.Extensions.Logging" version="[10.0.12, 11.0.0)" />
@@ -45,7 +45,7 @@
 			</group>
 		</frameworkReferences>
 	</metadata>
-	
+
 	<files>
 		<file src="../../src/Enterprise.Observability.Core/bin/Release/net10.0/Enterprise.Observability.Core.dll" target="lib/net10.0" />
 		<file src="../../src/Enterprise.Observability.Logging/bin/Release/net10.0/Enterprise.Observability.Logging.dll" target="lib/net10.0" />
