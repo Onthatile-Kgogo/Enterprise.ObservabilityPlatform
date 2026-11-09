@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Enterprise.Observability.Core\Enterprise.Observability.Core.csproj" />
+		<ProjectReference Include="..\Enterprise.Observability.Metrics\Enterprise.Observability.Metrics.csproj" />
+		<ProjectReference Include="..\Enterprise.Observability.Tracing\Enterprise.Observability.Tracing.csproj" />
+	</ItemGroup>
+</Project>
