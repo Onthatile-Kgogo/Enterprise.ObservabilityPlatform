@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+	<metadata>
+		<id>Enterprise.Observability</id>
+		<version>1.0.0</version>
+		<title>Enterprise Observability</title>
+		<authors>Onthatile Kgogo</authors>
+
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<license type="expression">MIT</license>
+
+		<description>
+			Reusable observability components for .NET 10 applications,
+			including structured logging, distributed tracing, metrics,
+			correlation IDs, and ASP.NET Core middleware.
+		</description>
+
+		<releaseNotes>
+			Initial release of Enterprise Observability v1.0.0.
+			Includes structured logging, distributed tracing,
+			performance metrics, correlation context,
+			and ASP.NET Core integration.
+		</releaseNotes>
+
+		<tags>observability logging tracing metrics telemetry aspnetcore dotnet</tags>
+
+		<repository
+		  type="git"
+		  url="https://github.com/Onthatile-Kgogo/Enterprise.ObservabilityPlatform" />
+
+		<projectUrl>https://github.com/Onthatile-Kgogo/Enterprise.ObservabilityPlatform</projectUrl>
+
+		<readme>README.md</readme>
+		
+		<dependencies>
+			<group targetFramework="net10.0">
+				<dependency id="Microsoft.Extensions.Logging" version="[10.0.12, 11.0.0)" />
+				<dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="[10.0.12, 11.0.0)" />
+			</group>
+		</dependencies>
+
+		<frameworkReferences>
+			<group targetFramework="net10.0">
+				<frameworkReference name="Microsoft.AspNetCore.App" />
+			</group>
+		</frameworkReferences>
+	</metadata>
+	
+	<files>
+		<file src="../../src/Enterprise.Observability.Core/bin/Release/net10.0/Enterprise.Observability.Core.dll" target="lib/net10.0" />
+		<file src="../../src/Enterprise.Observability.Logging/bin/Release/net10.0/Enterprise.Observability.Logging.dll" target="lib/net10.0" />
+		<file src="../../src/Enterprise.Observability.Metrics/bin/Release/net10.0/Enterprise.Observability.Metrics.dll" target="lib/net10.0" />
+		<file src="../../src/Enterprise.Observability.Tracing/bin/Release/net10.0/Enterprise.Observability.Tracing.dll" target="lib/net10.0" />
+		<file src="../../src/Enterprise.Observability.AspNetCore/bin/Release/net10.0/Enterprise.Observability.AspNetCore.dll" target="lib/net10.0" />
+		<file src="../../docs/README.md" target="README.md" />
+	</files>
+</package>

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<IsPackable>true</IsPackable>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+
+		<NuspecFile>Enterprise.Observability.nuspec</NuspecFile>
+		<PackageOutputPath>../../artifacts/nuget</PackageOutputPath>
+
+		<PackageId>Enterprise.Observability</PackageId>
+		<Version>1.0.0</Version>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="../../src/Enterprise.Observability.Core/Enterprise.Observability.Core.csproj" />
+		<ProjectReference Include="../../src/Enterprise.Observability.Logging/Enterprise.Observability.Logging.csproj" />
+		<ProjectReference Include="../../src/Enterprise.Observability.Metrics/Enterprise.Observability.Metrics.csproj" />
+		<ProjectReference Include="../../src/Enterprise.Observability.Tracing/Enterprise.Observability.Tracing.csproj" />
+		<ProjectReference Include="../../src/Enterprise.Observability.AspNetCore/Enterprise.Observability.AspNetCore.csproj" />
+	</ItemGroup>
+
+</Project>
